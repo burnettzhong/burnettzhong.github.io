@@ -10,7 +10,7 @@ tags: API, Mircoservice
 
 ## 背景介绍
 
-Spring Boot与Sping Cloud等项目为我们搭建微服务架构提供了很大的便利。但是微服务架构的劣势之一是增加了治理的复杂度。
+Spring Boot与Sping Cloud等项目为我们搭建微服务架构提供了很大的便利。但是微服务架构的劣势之一就是增加了治理的复杂度。
 众所周知，微服务架构中的各个应用是独立开发、部署的。当微服务数量到达一定的数量后，集中管理API文档的难度越来越大。
 为了减轻文档压力，很多Spring Boot项目集利用Swagger自动生成API描述页面。然而Swagger并没有解决API集中管控的问题，各个团队必须清楚的知道其他团队的Swagger页面地址，这势必完成了维护成本。这也是Parliament项目初衷。
 
