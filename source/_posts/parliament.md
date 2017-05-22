@@ -77,10 +77,12 @@ API信息发布采用的是Keyhole Software开发的khs-spring-boot-publish-swag
 
         swagger:
             publish:
-                publish-url: http://{Parliament server address}/swagger/publish/
-                swagger-url: http://127.0.0.1:${server.port}/v2/api-docs        
+                publish-url: http://127.0.0.1:8080/swagger/publish/
+                security-token: 6e8f1cc6-3c53-4ebe-b496-53f19fb7e10e
+                swagger-url: http://127.0.0.1:${server.port}${server.context-path}/v2/api-docs
 
-这里有两个地址，publish-url是我们的Parliament部署地址,；swagger-url为获取API描述地址，一般来讲都是本应用地址。
+这里有两个地址，publish-url是我们的Parliament部署地址, swagger-url为获取API描述地址，一般来讲都是本应用地址。
+security-token不用修改，暂时无用。
 
 4. 最后通过注解配置Spring Boot应用：
 
