@@ -1,0 +1,768 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="API, Mircoservice," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="简介本篇文章将阐述如何通过使用我开发Parliament，与Swagger、Keyhole Software提供的工具，搭建一套自动发布、集中管理的API文档中心。 背景介绍Spring Boot与Sping Cloud等项目为我们搭建微服务架构提供了很大的便利。但是微服务架构的劣势之一就是增加了治理的复杂度。众所周知，微服务架构中的各个应用是独立开发、部署的。当微服务数量到达一定的数量后，集中管">
+<meta name="keywords" content="API, Mircoservice">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为基于Spring Boot的微服务架构搭建一套自动化、集中管理的API文档中心">
+<meta property="og:url" content="https://burnettzhong.github.io/2017/04/08/parliament/index.html">
+<meta property="og:site_name" content="Burnettzhong&#39;s Blog">
+<meta property="og:description" content="简介本篇文章将阐述如何通过使用我开发Parliament，与Swagger、Keyhole Software提供的工具，搭建一套自动发布、集中管理的API文档中心。 背景介绍Spring Boot与Sping Cloud等项目为我们搭建微服务架构提供了很大的便利。但是微服务架构的劣势之一就是增加了治理的复杂度。众所周知，微服务架构中的各个应用是独立开发、部署的。当微服务数量到达一定的数量后，集中管">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-07T11:01:26.516Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为基于Spring Boot的微服务架构搭建一套自动化、集中管理的API文档中心">
+<meta name="twitter:description" content="简介本篇文章将阐述如何通过使用我开发Parliament，与Swagger、Keyhole Software提供的工具，搭建一套自动发布、集中管理的API文档中心。 背景介绍Spring Boot与Sping Cloud等项目为我们搭建微服务架构提供了很大的便利。但是微服务架构的劣势之一就是增加了治理的复杂度。众所周知，微服务架构中的各个应用是独立开发、部署的。当微服务数量到达一定的数量后，集中管">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://burnettzhong.github.io/2017/04/08/parliament/"/>
+
+
+
+
+
+  <title> 为基于Spring Boot的微服务架构搭建一套自动化、集中管理的API文档中心 | Burnettzhong's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?eacbd95f5d53dd6184b463f34afd012d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Burnettzhong's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://burnettzhong.github.io/2017/04/08/parliament/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Han Zhong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Burnettzhong's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+            
+            
+              
+                为基于Spring Boot的微服务架构搭建一套自动化、集中管理的API文档中心
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-08T12:23:49+00:00">
+                2017-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/08/parliament/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/04/08/parliament/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>本篇文章将阐述如何通过使用我开发Parliament，与Swagger、Keyhole Software提供的工具，搭建一套自动发布、集中管理的API文档中心。</p>
+<h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>Spring Boot与Sping Cloud等项目为我们搭建微服务架构提供了很大的便利。但是微服务架构的劣势之一就是增加了治理的复杂度。<br>众所周知，微服务架构中的各个应用是独立开发、部署的。当微服务数量到达一定的数量后，集中管理API文档的难度越来越大。<br>为了减轻文档压力，很多Spring Boot项目集利用Swagger自动生成API描述页面。然而Swagger并没有解决API集中管控的问题，各个团队必须清楚的知道其他团队的Swagger页面地址，这势必完成了维护成本。这也是Parliament项目初衷。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>我开发了一个简单的API文档中心服务器Parliament。Parliament集成了Swagger UI，用于显示和调试API。<br>API信息发布采用的是Keyhole Software开发的khs-spring-boot-publish-swagger-starter。需要注意的是原始的khs-spring-boot-publish-swagger-starter存在几个bug，请暂时使用<br>我提供的版本。</p>
+<p>背后的逻辑是：</p>
+<ol>
+<li>由Swagger2负责生成API描述，</li>
+<li>当Spring Boot应用每次启动时，通过khs-spring-boot-publish-swagger-starter将API描述发送到Parliament服务器。</li>
+<li>Parliament服务器存储并整理API描述，并提供UI展示给各个团队开发人员。</li>
+</ol>
+<p>这样我们就拥有了一个集中的、自动化的API文档中心。</p>
+<h2 id="开始搭建"><a href="#开始搭建" class="headerlink" title="开始搭建"></a>开始搭建</h2><p>在部署Parliament之前，我们需要先安装MongoDB。关于如何安装、配置MongoDB不在此文章范围。安装好MongoDB后，进行如下步骤。</p>
+<h3 id="I-部署Parliament"><a href="#I-部署Parliament" class="headerlink" title="I. 部署Parliament"></a>I. 部署Parliament</h3><pre><code>$git clone https://github.com/burnettzhong/parliament.git
+$cd parliament
+</code></pre><p>修改<em>application.properties</em>，配置数据源, 请将根据实际的MongoDB信息修改：</p>
+<pre><code>spring.data.mongodb.host = {MongoDB address}
+spring.data.mongodb.database = {MongoDB database name}
+spring.data.mongodb.port = {MongoDB port}
+</code></pre><p>构建并启动Parliament:</p>
+<pre><code>$mvn package &amp;&amp; java -jar target/Parliament-1.0.0.jar
+</code></pre><p>现在可以打开<a href="http://localhost:8080/index.html，当然在基本是个空白页面，因为我们还没有发布任何API信息到Parliament。" target="_blank" rel="noopener">http://localhost:8080/index.html，当然在基本是个空白页面，因为我们还没有发布任何API信息到Parliament。</a></p>
+<h3 id="II-让Spring-Boot应用发布API信息"><a href="#II-让Spring-Boot应用发布API信息" class="headerlink" title="II. 让Spring Boot应用发布API信息"></a>II. 让Spring Boot应用发布API信息</h3><p>这里我们需要加入两个依赖库，一个是SpringFox的Swagger2，另一个是khs-spring-boot-publish-swagger-startera。</p>
+<p><strong>注意</strong>：请不要使用来自Keyhole Software的khs-spring-boot-publish-swagger-starter，其中有两个bug。只有他们合并我们pull request，才可以直接使用。</p>
+<ol>
+<li><p>在Keyhole Software在Maven公共库中更新之前，我们需要手动安装我的版本(1.0.2)到本地Maven库中:</p>
+<pre><code>git clone https://github.com/burnettzhong/khs-spring-boot-publish-swagger-starter
+cd khs-spring-boot-publish-swagger-starter
+mvn clean install
+</code></pre></li>
+<li><p>在Spring Boot应用中增加Swagger2和khs-spring-boot-publish-swagger-starter依赖</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.springfox&lt;/groupId&gt;
+    &lt;artifactId&gt;springfox-swagger2&lt;/artifactId&gt;
+    &lt;version&gt;2.6.1&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.keyholesoftware&lt;/groupId&gt;
+    &lt;artifactId&gt;khs-spring-boot-publish-swagger-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.2&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre></li>
+<li><p>在application.yml或application.properties中配置Parliament地址：</p>
+<pre><code>swagger:
+    publish:
+        publish-url: http://127.0.0.1:8080/swagger/publish/
+        security-token: 6e8f1cc6-3c53-4ebe-b496-53f19fb7e10e
+        swagger-url: http://127.0.0.1:${server.port}${server.context-path}/v2/api-docs
+</code></pre></li>
+</ol>
+<p>这里有两个地址，publish-url是我们的Parliament部署地址, swagger-url为获取API描述地址，一般来讲都是本应用地址。<br>security-token不用修改，暂时无用。</p>
+<ol start="4">
+<li><p>最后通过注解配置Spring Boot应用：</p>
+<pre><code>@EnableSwagger2
+@PublishSwagger
+public class ServiceApplication {
+    ...
+}
+</code></pre></li>
+</ol>
+<p><em>@EnableSwagger2</em>启用Swagger2生成API描述，<em>@PublishSwagger</em>让应用在启动的时候将API描述JSON发布到Parliament。</p>
+<p>关于API描述的配置，Swagger2提供了很丰富的功能，请参考<a href="http://springfox.github.io/springfox/docs/current/" target="_blank" rel="noopener">Springfox Reference Documentation</a>。</p>
+<p>至此，全部安装部署结束。在启动配置好的Spring Boot应用后，再打开<a href="http://localhost:8080/index.html就可以看到我们的API信息了。" target="_blank" rel="noopener">http://localhost:8080/index.html就可以看到我们的API信息了。</a><br>Parliament根据<em>API的base path</em>进行分类，点击某个base path可以查看更详细的API信息(这里采用的是Swagger UI)。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><ol>
+<li>如果需要，可以将Parliament作为一个微服务注册到Euraka或者Zookeeper中。</li>
+<li>因为Parliament主要是在内网使用，目前没有进行安全验证。未来会引入对应用的认证，和用户管理。</li>
+<li>未来Parliament还将增加API使用统计的功能，完善整体API治理。</li>
+</ol>
+<p><strong>欢迎关注并贡献代码到<a href="https://github.com/burnettzhong/parliament" target="_blank" rel="noopener">https://github.com/burnettzhong/parliament</a></strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/API-Mircoservice/" rel="tag"># API, Mircoservice</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Han Zhong" />
+          <p class="site-author-name" itemprop="name">Han Zhong</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/burnettzhong" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#背景介绍"><span class="nav-number">2.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">3.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开始搭建"><span class="nav-number">4.</span> <span class="nav-text">开始搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#I-部署Parliament"><span class="nav-number">4.1.</span> <span class="nav-text">I. 部署Parliament</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#II-让Spring-Boot应用发布API信息"><span class="nav-number">4.2.</span> <span class="nav-text">II. 让Spring Boot应用发布API信息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Han Zhong</span>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://burnettzhong.github.io/2017/04/08/parliament/';
+          this.page.identifier = '2017/04/08/parliament/';
+          this.page.title = '为基于Spring Boot的微服务架构搭建一套自动化、集中管理的API文档中心';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
